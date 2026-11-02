@@ -1,0 +1,23 @@
+# dsh-dzairground-ssh bundle patch.
+#
+# 一行 insert 即挂载 Host 半身；浏览器半身由 package.json 的 dsh.client 声明，
+# 并绑定在 name 为裸包名的这一行上（子路径行不会携带半身）。
+- insert:
+    - id: dzairground-ssh
+      name: 'dsh-dzairground-ssh'
+      config: {}
+
+# dzdoc-mcp：把 v1 只读文档工具封装成 stdio MCP server（DOC-P2B-MCP-20261024，方案 B）。
+# 只暴露 8 个只读工具；危险脚本（cleanup_*/salvage_*/repo_index --write 等 27 个）一律不注册。
+# PYTHONIOENCODING=utf-8 显式写死（本机有过 GBK 塞坏 .gitignore 的事故）。
+# 回滚：删除本条 dzdoc-mcp（不影响 dzairground-ssh 自身那一条）。
+    - id: dzdoc-mcp
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        serverName: dzdoc
+        transport: stdio
+        command: C:\Users\TestFox\AppData\Local\Programs\Python\Python312\python.exe
+        args:
+          - D:\User\Desktop\比赛存档\v1\docs\_工具\mcp_dzdoc_server.py
+        env:
+          PYTHONIOENCODING: utf-8

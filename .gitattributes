@@ -1,2 +1,32 @@
-# Auto detect text files and perform LF normalization
+# 行尾与 diff 噪声治理（卡 SIM-STUDIO-OPT-20261024 · P2-1）
+#
+# 为什么需要这份文件：本仓历史上出现过两次**机器可防**的事故 ——
+#   ① sim.html 实测 140,984 B / 2,772 换行里 2,767 是 CRLF，一次真实改动
+#      （--ignore-all-space 下 +9/-82）在普通 git diff 里显示成「4587 行假 diff」，
+#      浪费掉一次人工核对；
+#   ② 曾用 PowerShell Set-Content 改 JS，把多行压成一行（注释吞掉代码），
+#      靠 node --check 才抓住。
+# 所以按扩展名把行尾钉死为 LF：工作树、索引、签出三处一致，diff 只显示真实改动。
+#
+# 纪律（README 也写了同一句）：
+#   · 看插件 diff 一律 `git diff --ignore-all-space`；
+#   · 写 .js/.html 一律用 edit/write 工具或 node 脚本，**不许** PowerShell
+#     Set-Content/Out-File（那条路会压行）。
+#
+# 注意：本文件**只立规则**，不搬历史包袱 —— 存量 CRLF 文件的归一单独成一个
+#   「纯行尾」提交（卡 P2-1 边界：行尾归一必须独立成提交，否则真实改动被淹掉）。
+
 * text=auto
+
+*.js      text eol=lf
+*.mjs     text eol=lf
+*.html    text eol=lf
+*.json    text eol=lf
+*.sh      text eol=lf
+
+# 二进制产物不参与行尾转换（VNC 静态资源 / 图片 / 压缩包）
+*.png     binary
+*.jpg     binary
+*.ico     binary
+*.zip     binary
+*.gz      binary
